@@ -1,15 +1,20 @@
-import { signOut, useAuth } from "@/lib/auth";
+import { Card } from "@/components/Card";
+import { EmptyState } from "@/components/EmptyState";
+import { Pill } from "@/components/Pill";
+import { Screen } from "@/components/Screen";
+import { useAuth } from "@/lib/auth";
 import { formatTime } from "@/lib/format";
 import { supabase } from "@/lib/supabase";
 import { Course, Lesson } from "@/types";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 export default function StudentHome() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
 
   const { profile } = useAuth();
+  const firstName = profile?.full_name.split(" ")[1] ?? "";
 
   useEffect(() => {
     supabase
@@ -35,34 +40,45 @@ export default function StudentHome() {
   }, []);
 
   return (
-    <ScrollView
-      className="flex-1 bg-bg "
-      contentContainerClassName="px-5 pt-16 gap-3"
-    >
+    <Screen>
       <Text className="text-ink text-2xl font-extrabold">
-        Привет, {profile?.full_name.split(" ")[1]}
+        Привет, {firstName}
       </Text>
-      {lessons.map((lesson) => (
-        <View key={lesson.id} className="bg-white rounded-2xl p-4">
-          <Text className="text-ink text-lg font-extrabold">
-            {courses.find((c) => c.id === lesson.course_id)?.title}
-          </Text>
 
-          <Text className="text-ink font-bold">
-            {formatTime(lesson.starts_at)}-{formatTime(lesson.ends_at)}
-          </Text>
-          <Text className="text-muted">
-            {lesson.lesson_type} ·{" "}
-            {lesson.format === "online" ? "Онлайн" : lesson.room}
-          </Text>
-        </View>
-      ))}
-      <Pressable
-        onPress={signOut}
-        className="bg-red-50 rounded-2xl py-4 items-center mt-2"
-      >
-        <Text className="text-red-600 font-bold text-base">Выйти</Text>
-      </Pressable>
-    </ScrollView>
+      {lessons.length === 0 ? (
+        <EmptyState
+          title="Пар пока нет"
+          text="Когда появится расписание, пары будут здесь"
+        />
+      ) : (
+        lessons.map((lesson) => {
+          const isOnline = lesson.format === "online";
+          const courseTitle = courses.find(
+            (c) => c.id === lesson.course_id,
+          )?.title;
+
+          return (
+            <Card key={lesson.id} className="gap-1">
+              <Text className="text-ink text-lg font-extrabold">
+                {courseTitle}
+              </Text>
+              <Text className="text-ink font-bold">
+                {formatTime(lesson.starts_at)}–{formatTime(lesson.ends_at)}
+              </Text>
+              <View className="flex-row items-center gap-2">
+                <Pill
+                  label={isOnline ? "Онлайн" : "Офлайн"}
+                  tone={isOnline ? "accent" : "primary"}
+                />
+                <Text className="text-muted">
+                  {lesson.lesson_type}
+                  {lesson.room ? ` · ${lesson.room}` : ""}
+                </Text>
+              </View>
+            </Card>
+          );
+        })
+      )}
+    </Screen>
   );
 }

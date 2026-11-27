@@ -1,6 +1,7 @@
+import { Button } from "@/components/Button";
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -52,15 +53,7 @@ export default function Login() {
 
       {error ? <Text className="text-red-600 text-sm">{error}</Text> : null}
 
-      <Pressable
-        onPress={handleLogin}
-        disabled={busy}
-        className={`bg-primary rounded-2xl py-4 items-center mt-2 ${busy ? "opacity-60" : ""}`}
-      >
-        <Text className="text-white font-bold text-base">
-          {busy ? "Входим…" : "Войти"}
-        </Text>
-      </Pressable>
+      <Button title="Войти" onPress={handleLogin} loading={busy} />
     </View>
   );
 }
