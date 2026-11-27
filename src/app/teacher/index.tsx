@@ -1,30 +1,9 @@
-import { useAuth } from "@/lib/auth";
+import { signOut, useAuth } from "@/lib/auth";
+import { formatTime } from "@/lib/format";
 import { supabase } from "@/lib/supabase";
+import { Course, Lesson } from "@/types";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
-
-type Course = { id: number; title: string };
-type Lesson = {
-  id: number;
-  course_id: number;
-  starts_at: string;
-  ends_at: string;
-  lesson_type: string;
-  format: "offline" | "online";
-  room: string | null;
-  meet_url: string | null;
-};
-
-function formatTime(isoString: string) {
-  const date = new Date(isoString);
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${hours}:${minutes}`;
-}
-
-async function signOut() {
-  await supabase.auth.signOut();
-}
 
 export default function TeacherHome() {
   const [courses, setCourses] = useState<Course[]>([]);

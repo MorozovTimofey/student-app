@@ -1,3 +1,4 @@
+import { Profile } from "@/types";
 import { Session } from "@supabase/supabase-js";
 import {
   createContext,
@@ -7,13 +8,6 @@ import {
   useState,
 } from "react";
 import { supabase } from "./supabase";
-
-export type Profile = {
-  id: string;
-  full_name: string;
-  role: "student" | "teacher";
-  group_name: string | null;
-};
 
 type AuthState = {
   session: Session | null | undefined;
@@ -67,4 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   return useContext(AuthContext);
+}
+
+export async function signOut() {
+  await supabase.auth.signOut();
 }
